@@ -19,8 +19,8 @@ async function getGlobalRanking() {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             players.push({ 
-                name: data.pseudo || "Anonyme", 
-                score: data.score || 0, // Utilise le champ record
+                name: data.username || data.pseudo || "Anonyme", 
+                score: data.score || 0
                 id: doc.id 
             });
         });
@@ -41,8 +41,8 @@ async function getFriendsRanking() {
         if (snap.exists()) {
             const data = snap.data();
             playersData.push({ 
-                name: data.pseudo || 'Anonyme', 
-                score: data.score || 0, 
+                name: data.username || data.pseudo || "Anonyme", 
+                score: data.score || 0 
                 id: snap.id 
             });
         }
@@ -86,4 +86,5 @@ document.addEventListener('DOMContentLoaded', () => {
     friendsTab.addEventListener('click', () => loadRanking('friends'));
     globalTab.addEventListener('click', () => loadRanking('global'));
     loadRanking('friends');
+
 });

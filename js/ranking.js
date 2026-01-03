@@ -42,7 +42,7 @@ async function getFriendsRanking() {
             const data = snap.data();
             playersData.push({ 
                 name: data.username || data.pseudo || "Anonyme", 
-                score: data.score || 0 
+                score: data.score || 0, 
                 id: snap.id 
             });
         }
@@ -86,6 +86,4 @@ document.addEventListener('DOMContentLoaded', () => {
     friendsTab.addEventListener('click', () => loadRanking('friends'));
     globalTab.addEventListener('click', () => loadRanking('global'));
     loadRanking('friends');
-
 });
-

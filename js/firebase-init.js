@@ -39,15 +39,17 @@ export async function loginWithGoogle() {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         
-        // On lie le compte : l'ID local devient l'UID Google
+        // On force l'enregistrement du nom exact de Google
         localStorage.setItem("banane_id", user.uid);
-        localStorage.setItem("banane_pseudo", user.displayName);
+        localStorage.setItem("banane_pseudo", user.displayName); // Vérifie que ce n'est pas vide
         
-        console.log("Connecté en tant que :", user.displayName);
+        // On lance une sauvegarde immédiate pour mettre à jour le classement
+        const currentBananas = localStorage.getItem('banane_bananas') || 0;
+        await saveProgressAfterAction(currentBananas);
+        
         return user;
     } catch (error) {
         console.error("Erreur de connexion Google:", error);
-        alert("Erreur de connexion : " + error.message);
     }
 }
 
@@ -56,20 +58,22 @@ export async function loginWithGoogle() {
 // Dans js/firebase-init.js
 export async function saveProgressAfterAction(bananas) {
     const userId = localStorage.getItem("banane_id");
+    // On récupère le nom depuis le localStorage ou on met "Joueur" par défaut
     const pseudo = localStorage.getItem("banane_pseudo") || "Joueur";
-    const bestScore = localStorage.getItem("banane_best_score") || 0; // Ton record
+    const bestScore = localStorage.getItem("banane_best_score") || 0;
     
     if (!userId) return;
     
     const playerRef = doc(db, "players", userId);
     const dataToSave = {
-        bananas: Number(bananas), // Ta monnaie
-        score: Number(bestScore), // Ton record pour le classement
-        username: pseudo, // Pour ne plus être "Anonyme"
+        bananas: Number(bananas),
+        score: Number(bestScore),
+        username: pseudo, // <--- C'EST CETTE LIGNE QUI VA CRÉER LE CHAMP DANS FIREBASE
         inventory: localStorage.getItem('banane_inventory')
     };
     
     await setDoc(playerRef, dataToSave, { merge: true });
+    console.log("Nom envoyé à Firebase :", pseudo);
 }
 
 // Dans js/firebase-init.js

@@ -26,18 +26,27 @@ function renderInventory() {
 
     // 2. Transformer l'objet en liste d'items complets
     let ownedItems = Object.keys(inventoryData).map(id => {
+        // Chercher dans les skins, les boosts ou vérifier si c'est une box
         const itemData = ALL_SKINS.find(s => s.id === id) || ALL_BOOSTS.find(b => b.id === id);
+        
         if (itemData) {
-            return { ...itemData, ...inventoryData[id] };
+            return { ...itemData, ...inventoryData[id], id: id };
+        } else if (id.startsWith('box_')) {
+            // Cas spécial pour les lootboxes qui n'ont pas de data fixe dans game-data.js
+            return { 
+                id: id, 
+                type: 'box', 
+                rarity: id.split('_')[1], 
+                quantity: inventoryData[id].quantity || 1 
+            };
         }
         return null;
     }).filter(item => item !== null);
 
-    // 3. Trier : Skins en premier, puis par rareté (Légendaire > Épique > Rare > Commun)
-    const rarityOrder = { 'legendary': 4, 'epic': 3, 'rare': 2, 'common': 1 };
+    // 3. Trier
     ownedItems.sort((a, b) => {
         if (a.type !== b.type) return a.type === 'skin' ? -1 : 1;
-        return (rarityOrder[b.rarity] || 0) - (rarityOrder[a.rarity] || 0);
+        return (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0);
     });
 
     if (ownedItems.length === 0) {
@@ -45,58 +54,56 @@ function renderInventory() {
         return;
     }
 
-    // 4. Générer le HTML pour chaque item
+    // 4. Générer le HTML
     ownedItems.forEach(item => {
         const itemDiv = document.createElement('div');
         const isSkin = item.type === 'skin';
+        const isBox = item.type === 'box';
         const isActiveSkin = item.id === activeSkinId;
         const quantity = item.quantity || 1;
         
-        // Classes pour le style (rareté)
         itemDiv.className = `shop-item inventory-item rarity-${item.rarity || 'common'}`;
         
-        itemDiv.innerHTML = `
-            ${!isSkin && quantity > 1 ? `<div class="quantity-badge">x${quantity}</div>` : ''}
-            <div class="rarity-tag">${item.rarity || 'common'}</div>
-            <img src="${item.image}" alt="${item.name}">
-            
-            <div class="item-details">
-                <strong>${item.name}</strong>
-                <p class="desc">${item.description}</p>
-                <div class="price-line">
+        if (isBox) {
+            // Affichage spécifique pour les Lootboxes
+            itemDiv.innerHTML = `
+                <div class="quantity-badge">x${quantity}</div>
+                <div class="rarity-tag">${item.rarity.toUpperCase()}</div>
+                <img src="img/box_${item.rarity}.png" class="item-img" onerror="this.src='img/box_common.png'">
+                <div class="item-details">
+                    <strong>Lootbox ${item.rarity}</strong>
+                    <p class="desc">Contient des récompenses de valeur !</p>
+                    <button class="btn small-btn">OUVRIR</button>
+                </div>
+            `;
+        } else {
+            // Affichage pour Skins et Boosts
+            itemDiv.innerHTML = `
+                ${!isSkin && quantity > 1 ? `<div class="quantity-badge">x${quantity}</div>` : ''}
+                <div class="rarity-tag">${item.rarity || 'common'}</div>
+                <img src="${item.image}" alt="${item.name}">
+                <div class="item-details">
+                    <strong>${item.name}</strong>
+                    <p class="desc">${item.description}</p>
                     <button class="btn small-btn">
                         ${isSkin ? (isActiveSkin ? 'ÉQUIPÉ' : 'ÉQUIPER') : (hasActiveShield ? 'DÉJÀ ACTIF' : 'ACTIVER')}
                     </button>
                 </div>
-            </div>
-        `;
-
-        // Gestion du clic sur le bouton
-        const btn = itemDiv.querySelector('button');
-        
-        // Désactiver le bouton si nécessaire
-        if (isSkin && isActiveSkin) {
-            btn.disabled = true;
-            btn.style.opacity = "0.7";
-        } else if (!isSkin && hasActiveShield) {
-            btn.disabled = true;
-            btn.style.opacity = "0.5";
+            `;
         }
 
+        const btn = itemDiv.querySelector('button');
+        if (isSkin && isActiveSkin) btn.disabled = true;
+
         btn.addEventListener('click', () => {
-            if (isSkin) {
-                handleEquipSkin(item); // Ta fonction pour changer de skin
-            } else {
-                activateBoost(item); // Ta fonction pour activer le bouclier
-            }
+            if (isSkin) equipSkin(item.id);
+            else if (isBox) window.openBox(item.rarity); // Appel de la fonction de shop.js
+            else activateBoost(item);
         });
 
         INVENTORY_LIST.appendChild(itemDiv);
     });
-
-    // Mise à jour du compteur de bananes en haut de page
-    updateBananaBalance();
-}
+} // <--- L'accolade qui manquait ici !
 
 function equipSkin(id) {
     localStorage.setItem('banane_active_skin', id);
@@ -105,49 +112,30 @@ function equipSkin(id) {
 }
 
 function activateBoost(item) {
-    // 1. VÉRIFICATION : Existe-t-il déjà un bouclier actif ?
     const activeShield = localStorage.getItem('banane_active_shield');
-    
     if (activeShield) {
-        alert("🛡️ Un bouclier est déjà actif ! Utilise-le en jouant avant d'en activer un nouveau.");
-        return; // On arrête la fonction ici, le bouclier n'est pas consommé
+        alert("🛡️ Un bouclier est déjà actif !");
+        return;
     }
-
-    // 2. LOGIQUE D'ACTIVATION (si aucun bouclier n'est actif)
     if (item.type === 'shield') {
         localStorage.setItem('banane_active_shield', JSON.stringify({
             id: item.id,
             life: item.life,
             name: item.name
         }));
-        
-        // On consomme l'item de l'inventaire seulement maintenant
         consumeItem(item.id);
-        alert(`✅ ${item.name} activé ! Il te protégera lors de ta prochaine erreur.`);
-        
-        // On rafraîchit l'affichage de l'inventaire
+        alert(`✅ ${item.name} activé !`);
         renderInventory();
     }
 }
 
 function consumeItem(id) {
     let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
-    
     if (inventory[id]) {
-        // Si c'est un boost avec une quantité (comme le bouclier)
-        if (inventory[id].quantity > 1) {
-            inventory[id].quantity -= 1; // On réduit de 1
-        } else {
-            // S'il n'en reste qu'un, on supprime l'entrée
-            delete inventory[id];
-        }
-        
-        // Mise à jour du stockage local
+        if (inventory[id].quantity > 1) inventory[id].quantity -= 1;
+        else delete inventory[id];
         localStorage.setItem('banane_inventory', JSON.stringify(inventory));
-        
-        // Sauvegarde sur le Cloud
-        const currentBananas = localStorage.getItem('banane_bananas') || 0;
-        saveProgressAfterAction(currentBananas);
+        saveProgressAfterAction(localStorage.getItem('banane_bananas') || 0);
     }
 }
 

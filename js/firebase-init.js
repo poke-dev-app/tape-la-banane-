@@ -56,16 +56,19 @@ export async function loginWithGoogle() {
 // Dans js/firebase-init.js
 export async function saveProgressAfterAction(bananas) {
     const userId = localStorage.getItem("banane_id");
+    const pseudo = localStorage.getItem("banane_pseudo") || "Joueur Anonyme"; // On récupère le pseudo
     if (!userId) return;
     
     const playerRef = doc(db, "players", userId);
     const dataToSave = {
         bananas: Number(bananas),
-        inventory: localStorage.getItem('banane_inventory')
+        username: pseudo, // On ajoute le pseudo pour le classement
+        inventory: localStorage.getItem('banane_inventory'),
+        lastUpdate: new Date() // Optionnel : pour savoir quand il a joué
     };
     
     await setDoc(playerRef, dataToSave, { merge: true });
-    console.log("Sauvegarde cloud réussie !");
+    console.log("Sauvegarde cloud réussie pour :", pseudo);
 }
 
 // Dans js/firebase-init.js
@@ -97,4 +100,5 @@ export async function loadUserData(userId) {
     }
 }
 // 6. Exports des outils Firestore pour les autres fichiers
+
 export { doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs };

@@ -20,7 +20,7 @@ async function getGlobalRanking() {
             const data = doc.data();
             players.push({ 
                 name: data.username || data.pseudo || "Anonyme", 
-                score: data.score || 0
+                score: data.score || 0,
                 id: doc.id 
             });
         });
@@ -88,3 +88,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRanking('friends');
 
 });
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Amis</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h2 style="margin-top:20px;">👥 Amis</h2>
+
+<div class="card-box" style="text-align:center;">
+    
+    <div id="setupArea">
+        <h3 style="margin-top:0;">Créer mon profil</h3>
+        <p style="color:#777; font-size:0.9em;">Choisis un pseudo pour apparaître dans le classement.</p>
+        <div class="input-group">
+            <input type="text" id="myPseudoInput" placeholder="Ex: RoiBanane12">
+        </div>
+        <button class="btn" id="saveProfileBtn">Valider</button>
+    </div>
+
+    <div id="myCodeArea" class="hidden">
+        <div style="font-size:1.2em; color:#5d4037;">Salut <strong id="displayPseudo"></strong> !</div>
+        
+        <p style="margin-bottom:5px; color:#888;">Ton code ami à partager :</p>
+        
+        <div class="code-display">
+            <input type="text" id="myCode" readonly value="...">
+        </div>
+        
+        <p style="font-size:0.8em; color:#aaa; margin-top:0;">
+            Tes amis doivent entrer ce code pour t'ajouter.
+        </p>
+    </div>
+</div>
+
+<div style="text-align:center; margin-bottom:15px;">
+    <button class="btn ghost" id="toggleAddBtn">➕ Ajouter un ami</button>
+</div>
+
+<div id="addFriendArea" class="hidden card-box" style="text-align:center; border-color:#ddd;">
+    <h3 style="margin-top:0; font-size:1.1em;">Ajouter un ami</h3>
+    <p style="font-size:0.9em;">Entre le code (ex: BAN-XYZ) :</p>
+    <div class="input-group">
+        <input id="friendCodeInput" type="text" placeholder="BAN-...">
+    </div>
+    <button class="btn" id="confirmAddBtn">Confirmer</button>
+</div>
+
+<h3 style="text-align:left; margin-left:20px; margin-bottom:10px;">Mes amis suivis :</h3>
+<div id="friendsList" style="padding: 0 10px 80px 10px;">
+    </div>
+
+<nav class="navBar">
+    <a class="navBtn" href="index.html">🏠</a>
+    <a class="navBtn" href="shop.html">🛒</a>
+    <a class="navBtn" href="inventory.html">🎒</a>
+    <a class="navBtn active" href="friends.html">👥</a> 
+    <a class="navBtn" href="ranking.html">🏆</a>
+    <a class="navBtn" href="settings.html">⚙️</a>
+</nav>
+
+<script type="module" src="js/friends.js"></script>
+</body>
+</html>

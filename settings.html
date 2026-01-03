@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paramètres</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="card-box">
+  <h2>⚙️ Paramètres</h2>
+
+  <h3>Audio & Haptique</h3>
+  <div class="setting-item">
+    <span>Sons du jeu</span>
+    <label class="switch"><input type="checkbox" id="soundToggle"><span class="slider"></span></label>
+  </div>
+  <div class="setting-item">
+    <span>Vibrations (Feedback haptique)</span>
+    <label class="switch"><input type="checkbox" id="vibrationToggle"><span class="slider"></span></label>
+  </div>
+  
+  <div class="card-box" style="text-align:center;">
+    <h3>Sauvegarde Cloud</h3>
+    <p style="font-size:0.9em; color:#777;">Connecte-toi pour ne jamais perdre tes bananes.</p>
+    <button id="googleLoginBtn" class="btn" style="background-color: #4285F4; color: white;">
+        <i class="fab fa-google"></i> Se connecter avec Google
+    </button>
+  </div>
+
+  <h3>Compte & Codes</h3>
+  <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+    <span style="margin-bottom: 8px;">Pseudo (Visible en ligne) :</span>
+    
+    <div class="input-with-button" style="width: 100%; max-width: 100%;">
+        <input type="text" id="pseudoInput" placeholder="Choisis ton pseudo...">
+        <button id="savePseudoBtn">Enregistrer</button> 
+    </div>
+</div>
+
+<div class="setting-item" style="border-bottom: none;">
+    <span>Ton ID (à ne pas partager) :</span>
+    <span id="myUserId" class="muted">Non défini</span>
+</div>
+
+<div class="card-box">
+    <div class="code-display">
+        <span>Code Bonus :</span>
+        <input type="text" id="bonusCodeInput" placeholder="Entrez un code">
+        <button class="btn small-btn" id="activateCodeBtn">Activer</button>
+    </div>
+</div>
+
+  <h3>Statut & Info</h3>
+  <div class="setting-item">
+    <span>Statut du réseau (Firebase)</span>
+    <span id="networkStatus" class="status-indicator">Déconnecté</span>
+  </div>
+  <div class="setting-item">
+    <a href="#" id="creatorLink" target="_blank" class="btn ghost small-btn">Réseaux du Créateur</a>
+  </div>
+
+  <hr>
+
+  <h3>⚠️ Zone Danger</h3>
+  <button class="btn ghost" id="resetGameBtn">Réinitialiser le jeu (Score, Amis, Inventaire)</button>
+
+</div>
+
+<nav class="navBar">
+  <a class="navBtn" href="index.html">🏠</a>
+  <a class="navBtn" href="shop.html">🛒</a>
+  <a class="navBtn" href="inventory.html">🎒</a>
+  <a class="navBtn" href="friends.html">👥</a>
+  <a class="navBtn" href="ranking.html">🏆</a>
+  <a class="navBtn active" href="settings.html">⚙️</a>
+</nav>
+
+
+<script type="module" src="js/settings.js"></script>
+</body>
+</html>

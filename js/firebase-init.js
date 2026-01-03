@@ -56,19 +56,20 @@ export async function loginWithGoogle() {
 // Dans js/firebase-init.js
 export async function saveProgressAfterAction(bananas) {
     const userId = localStorage.getItem("banane_id");
-    const pseudo = localStorage.getItem("banane_pseudo") || "Joueur Anonyme"; // On récupère le pseudo
+    const pseudo = localStorage.getItem("banane_pseudo") || "Joueur";
+    const bestScore = localStorage.getItem("banane_best_score") || 0; // Ton record
+    
     if (!userId) return;
     
     const playerRef = doc(db, "players", userId);
     const dataToSave = {
-        bananas: Number(bananas),
-        username: pseudo, // On ajoute le pseudo pour le classement
-        inventory: localStorage.getItem('banane_inventory'),
-        lastUpdate: new Date() // Optionnel : pour savoir quand il a joué
+        bananas: Number(bananas), // Ta monnaie
+        score: Number(bestScore), // Ton record pour le classement
+        username: pseudo, // Pour ne plus être "Anonyme"
+        inventory: localStorage.getItem('banane_inventory')
     };
     
     await setDoc(playerRef, dataToSave, { merge: true });
-    console.log("Sauvegarde cloud réussie pour :", pseudo);
 }
 
 // Dans js/firebase-init.js
@@ -100,5 +101,4 @@ export async function loadUserData(userId) {
     }
 }
 // 6. Exports des outils Firestore pour les autres fichiers
-
 export { doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs };

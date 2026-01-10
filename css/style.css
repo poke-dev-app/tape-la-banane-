@@ -518,40 +518,70 @@ body {
     background-color: #2196F3; /* Bleu */
 }
 
-/*l'animation de la roue */
+/* --- ROUE DE LA FORTUNE --- */
 .wheel-container {
     background: linear-gradient(135deg, #FFD54F 0%, #F57C00 100%);
     border-radius: 20px;
     padding: 20px;
     text-align: center;
     border: 4px solid #FFF;
+    margin: 15px;
 }
 
-.wheel-visual {
+#visualWheel {
     font-size: 80px;
     margin-bottom: 20px;
     display: inline-block;
-    transition: transform 3s cubic-bezier(0.15, 0, 0.15, 1); /* Animation de freinage douce */
+    /* La transition doit être ICI */
+    transition: transform 3s cubic-bezier(0.15, 0, 0.15, 1);
 }
 
-/* Classe ajoutée par le JS pendant l'animation */
 .is-spinning {
-    pointer-events: none; /* Empêche de recliquer pendant que ça tourne */
+    pointer-events: none;
+    filter: blur(1px); /* Effet de vitesse */
 }
 
-.multi-spin-row {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-}
-
+/* --- LOOT BOXES DANS L'INVENTAIRE --- */
 .inventory-item.type-box {
     border: 2px dashed #FFD54F;
-    background: #FFF9C4;
+    background: #FFF9C4 !important;
 }
 
+/* --- SECTION LOOT BOXES --- */
+
+/* Style pour la carte dans l'inventaire */
+.inventory-item.type-box {
+    border: 2px dashed #FFD54F;
+    background: #FFF9C4 !important; /* Force le fond jaune clair */
+    box-shadow: 0 4px 8px rgba(255, 213, 79, 0.3);
+}
+
+/* Bouton spécifique pour ouvrir les coffres */
 .inventory-item.type-box .btn {
-    background: #FF9800; /* Bouton orange pour "Ouvrir" */
+    background: linear-gradient(135deg, #FF9800, #F57C00);
     color: white;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Animation de tremblement (Shake) */
+@keyframes boxShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* Classe à appliquer pendant l'ouverture */
+.is-opening {
+    animation: boxShake 0.5s;
+    animation-iteration-count: infinite;
 }

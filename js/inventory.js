@@ -103,6 +103,11 @@ function renderInventory() {
 
         INVENTORY_LIST.appendChild(itemDiv);
     });
+
+    if (item.type === 'box') {
+    btn.textContent = "Ouvrir";
+    btn.classList.add('gold-btn'); // Pour qu'il brille un peu
+    }
 } // <--- L'accolade qui manquait ici !
 
 function equipSkin(id) {

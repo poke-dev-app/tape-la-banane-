@@ -125,7 +125,7 @@ async function handleBuyItem(item) {
     }
 }
 
-// --- 5. LOGIQUE DE LA ROUE ---
+// --- LOGIQUE DE LA ROUE CORRIGÉE ---
 window.playWheel = async (count = 1) => {
     if (isSpinning) return;
 
@@ -141,18 +141,19 @@ window.playWheel = async (count = 1) => {
     const visualWheel = document.getElementById('visualWheel');
     if (visualWheel) visualWheel.classList.add('is-spinning');
 
-    // Animation
+    // Animation de rotation
     const extraDegree = Math.floor(Math.random() * 360);
     currentRotation += (360 * 5) + extraDegree;
     if (visualWheel) visualWheel.style.transform = `rotate(${currentRotation}deg)`;
 
     setTimeout(async () => {
-        bananas -= cost; // On paye le lancer
+        // 1. Déduire le coût
+        bananas -= cost;
         
         const rand = Math.random() * 100;
-        let reward = {};
+        let reward = null;
 
-        // --- TES PROBABILITÉS ---
+        // 2. TES PROBABILITÉS (Intégrées correctement)
         if (rand < 45) { 
             let gain;
             if (rand < 8) gain = 100;
@@ -163,25 +164,24 @@ window.playWheel = async (count = 1) => {
             else if (rand < 40) gain = 1300;
             else if (rand < 43) gain = 1500;
             else gain = 2000;
-            
             reward = { type: 'money', val: gain, name: gain + " 🍌" };
         } 
         else if (rand < 57) reward = { type: 'shield', id: 'shield_wood', name: "Bouclier Bois" };
         else if (rand < 67) reward = { type: 'shield', id: 'shield_iron', name: "Bouclier Fer" };
         else if (rand < 75) reward = { type: 'shield', id: 'shield_gold', name: "Bouclier Or" };
-        else if (rand < 90) reward = { type: 'boost', id: 'boost_x2_money_3h', name: "Boost x2 (3h)" };
+        else if (rand < 90) reward = { type: 'boost', id: 'boost_x2_money_3h', name: "Boost x2" };
         else if (rand < 96) reward = { type: 'box', id: 'box_common', rarity: 'common', name: "Lootbox Commune" };
         else if (rand < 99) reward = { type: 'box', id: 'box_rare', rarity: 'rare', name: "Lootbox Rare" };
         else reward = { type: 'box', id: 'box_epic', rarity: 'epic', name: "Lootbox Épique" };
 
-        // --- SYSTÈME D'AJOUT ---
+        // 3. AJOUT À L'INVENTAIRE (Remplace addBoostToWheel)
         let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
 
         if (reward.type === 'money') {
             bananas += reward.val;
-            alert(`💰 Gain : +${reward.val} Bananes !`);
+            alert(`💰 Gain : +${reward.name} !`);
         } else {
-            // On ajoute l'objet (Box, Shield ou Boost)
+            // Logique générique pour Box, Shield et Boost
             if (inventory[reward.id]) {
                 inventory[reward.id].quantity += 1;
             } else {
@@ -194,14 +194,16 @@ window.playWheel = async (count = 1) => {
                 };
             }
             localStorage.setItem('banane_inventory', JSON.stringify(inventory));
-            alert(`🎁 Gagné : ${reward.name} ! (Ajouté à l'inventaire)`);
+            alert(`🎁 Gagné : ${reward.name} ! (Check ton sac à dos)`);
         }
 
-        // Sauvegarde et UI
+        // 4. Sauvegarde et Mise à jour UI
         localStorage.setItem('banane_bananas', bananas);
         isSpinning = false;
         if (visualWheel) visualWheel.classList.remove('is-spinning');
         updateBananaBalance();
+        
+        // Sauvegarde Cloud Firebase
         await saveProgressAfterAction(bananas);
 
     }, 3000);
@@ -247,3 +249,4 @@ function initShop() {
 }
 
 document.addEventListener('DOMContentLoaded', initShop);
+

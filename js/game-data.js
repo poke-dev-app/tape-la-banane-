@@ -206,7 +206,7 @@ export const CRIT_MULTI_UPGRADES = [
 // --- CONFIGURATION DES LOOT BOXES ---
 export const LOOT_BOX_CONFIG = {
     common: {
-        name: "Coffre Commun",
+        name: "loot-box Commun",
         value: 5000,
         upgradeChance: 15, // 15% de chance de devenir Rare
         nextTier: 'rare',
@@ -215,7 +215,7 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 10
     },
     rare: {
-        name: "Coffre Rare",
+        name: "loot-box Rare",
         value: 15000,
         upgradeChance: 10, // 10% de chance de devenir Épique
         nextTier: 'epic',
@@ -224,7 +224,7 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 20
     },
     epic: {
-        name: "Coffre Épique",
+        name: "loot-box Épique",
         value: 40000,
         upgradeChance: 5, // 5% de chance de devenir Légendaire
         nextTier: 'legendary',
@@ -233,7 +233,7 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 35
     },
     legendary: {
-        name: "Coffre Légendaire",
+        name: "loot-box Légendaire",
         value: 150000,
         upgradeChance: 0,
         moneyRange: [50000, 100000],

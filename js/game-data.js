@@ -202,3 +202,42 @@ export const CRIT_MULTI_UPGRADES = [
     { id: 'crit_m_2', name: 'Force x4', cost: 200000, multi: 4 },
     { id: 'crit_m_3', name: 'Force x5', cost: 600000, multi: 5 }
 ];
+
+// --- CONFIGURATION DES LOOT BOXES ---
+export const LOOT_BOX_CONFIG = {
+    common: {
+        name: "Coffre Commun",
+        value: 5000,
+        upgradeChance: 15, // 15% de chance de devenir Rare
+        nextTier: 'rare',
+        moneyRange: [1000, 3000],
+        boostChance: 30,
+        skinChance: 10
+    },
+    rare: {
+        name: "Coffre Rare",
+        value: 15000,
+        upgradeChance: 10, // 10% de chance de devenir Épique
+        nextTier: 'epic',
+        moneyRange: [4000, 8000],
+        boostChance: 50,
+        skinChance: 20
+    },
+    epic: {
+        name: "Coffre Épique",
+        value: 40000,
+        upgradeChance: 5, // 5% de chance de devenir Légendaire
+        nextTier: 'legendary',
+        moneyRange: [12000, 25000],
+        boostChance: 70,
+        skinChance: 35
+    },
+    legendary: {
+        name: "Coffre Légendaire",
+        value: 150000,
+        upgradeChance: 0,
+        moneyRange: [50000, 100000],
+        boostChance: 100,
+        skinChance: 60
+    }
+};

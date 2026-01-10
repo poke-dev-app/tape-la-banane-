@@ -126,118 +126,121 @@ async function handleBuyItem(item) {
 }
 
 // --- 5. LOGIQUE DE LA ROUE ---
-async function playWheel(times) {
+// --- LOGIQUE DE LA ROUE (FONCTION COMPLÈTE) ---
+window.playWheel = async (count = 1) => {
     if (isSpinning) return;
-    let bananas = updateBananaBalance();
-    const cost = 1000 * times;
 
-    if (bananas < cost) return alert("❌ Pas assez de bananes !");
-    if (times >= 10 && !confirm(`Lancer ${times} fois ?`)) return;
+    const cost = 1000 * count;
+    let bananas = updateBananaBalance();
+
+    if (bananas < cost) {
+        alert("❌ Pas assez de bananes !");
+        return;
+    }
 
     isSpinning = true;
-    bananas -= cost;
-    localStorage.setItem('banane_bananas', bananas);
-    updateBananaBalance();
+    const visualWheel = document.getElementById('visualWheel');
+    if (visualWheel) visualWheel.classList.add('is-spinning');
 
-    const wheelEl = document.getElementById('visualWheel');
-    if (wheelEl) {
-        currentRotation += 1800 + Math.floor(Math.random() * 360);
-        wheelEl.style.transform = `rotate(${currentRotation}deg)`;
+    // Calcul de la rotation : 3 tours complets + angle aléatoire
+    const extraDegree = Math.floor(Math.random() * 360);
+    currentRotation += (360 * 3) + extraDegree;
+    
+    if (visualWheel) {
+        visualWheel.style.transform = `rotate(${currentRotation}deg)`;
     }
 
+    // Attendre la fin de l'animation (3 secondes)
     setTimeout(async () => {
-        let totalGain = 0;
-        for (let i = 0; i < times; i++) {
-            const res = await calculateSpinResult();
-            totalGain += res.bananas;
-        }
-
-        let finalBananas = Number(localStorage.getItem('banane_bananas')) + totalGain;
-        localStorage.setItem('banane_bananas', finalBananas);
-        updateBananaBalance();
+        // 1. Déduction du prix
+        bananas -= cost;
+        localStorage.setItem('banane_bananas', bananas);
         
-        alert(`🎰 Résultat : +${totalGain} bananes et des objets ajoutés !`);
-        await saveProgressAfterAction(finalBananas);
-        isSpinning = false;
-    }, 3000);
-}
+        // 2. Détermination de la récompense
+         const rand = Math.random() * 100;
 
-async function calculateSpinResult() {
-    const rand = Math.random() * 100;
     let gain = 0;
+
     let title = "";
 
+
+
     // Probabilités définies selon game-data.js
+
     if (rand < 45) { // Gains de bananes
+
         if (rand < 8) gain = 100;
+
         else if (rand < 15) gain = 200;
+
         else if (rand < 23) gain = 500;
+
         else if (rand < 29) gain = 700;
+
         else if (rand < 35) gain = 1000;
+
         else if (rand < 40) gain = 1300;
+
         else if (rand < 43) gain = 1500;
+
         else gain = 2000;
+
         title = `+${gain} 🍌`;
+
     } 
+
     else if (rand < 57) { title = "Bouclier Bois"; addBoostToWheel('shield_wood', 'shield'); }
+
     else if (rand < 67) { title = "Bouclier Fer"; addBoostToWheel('shield_iron', 'shield'); }
+
     else if (rand < 75) { title = "Bouclier Or"; addBoostToWheel('shield_gold', 'shield'); }
+
     else if (rand < 90) { title = "Boost x2"; addBoostToWheel('boost_x2_money_3h', 'boost'); }
-    else if (rand < 96) { title = "Lootbox Commune"; await openLootbox('common'); }
-    else if (rand < 99) { title = "Lootbox Rare"; await openLootbox('rare'); }
-    else { title = "Lootbox Épique"; await openLootbox('epic'); }
+
+    else if (rand < 96) { title = "Lootbox Commune"; ('loot-box Commun','box'); }
+
+    else if (rand < 99) { title = "Lootbox Rare"; ('loot-box Rare','box'); }
+
+    else { title = "Lootbox Épique"; ('loot-box Épique','box'); }
+
+
 
     return { bananas: gain, title };
-}
 
-function addBoostToWheel(id, type) {
-    let inv = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
-    if (!inv[id]) inv[id] = { quantity: 1, type: type };
-    else inv[id].quantity += 1;
-    localStorage.setItem('banane_inventory', JSON.stringify(inv));
-}
 
-// Dans js/shop.js
-async function openLootbox(rarity) {
-    const rand = Math.random() * 100;
-    let reward = {};
 
-    // Définition des récompenses selon tes paliers de valeur
-    const config = {
-        common: { val: 5000, next: 'rare', skinChance: 30 },
-        rare: { val: 15000, next: 'epic', skinChance: 25 },
-        epic: { val: 40000, next: 'legendary', skinChance: 20 },
-        legendary: { val: 150000, next: null, skinChance: 40 }
-    };
+        // 3. Application de la récompense
+        let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
+        let alertMsg = "";
 
-    const current = config[rarity];
+        if (reward.type === 'money') {
+            bananas += reward.val;
+            localStorage.setItem('banane_bananas', bananas);
+            alertMsg = `💰 Gagné : ${reward.name} !`;
+        } else if (reward.type === 'box') {
+            if (inventory[reward.id]) {
+                inventory[reward.id].quantity += 1;
+            } else {
+                inventory[reward.id] = { id: reward.id, type: 'box', rarity: reward.rarity, quantity: 1 };
+            }
+            localStorage.setItem('banane_inventory', JSON.stringify(inventory));
+            alertMsg = `🎁 Gagné : un ${reward.name} !`;
+        }
 
-    if (rand < 50) { 
-        // 1. RECOMPENSE EN BANANES (Entre 60% et 130% de la valeur de la box)
-        const min = current.val * 0.6;
-        const max = current.val * 1.3;
-        const gain = Math.floor(Math.random() * (max - min + 1) + min);
-        reward = { type: 'bananas', value: gain, msg: `💰 Jackpot ! +${gain.toLocaleString()} bananes !` };
+        alert(alertMsg);
 
-    } else if (rand < 50 + current.skinChance) { 
-        // 2. RECOMPENSE SKIN (Un skin de la rareté correspondante)
-        // Note: ALL_SKINS vient de game-data.js
-        const possibleSkins = ALL_SKINS.filter(s => s.rarity === rarity);
-        const skin = possibleSkins[Math.floor(Math.random() * possibleSkins.length)];
-        reward = { type: 'skin', value: skin, msg: `✨ Incroyable ! Tu as débloqué : ${skin.name} !` };
+// 4. Libération de la roue
+        isSpinning = false;
+        if (visualWheel) visualWheel.classList.remove('is-spinning');
+        updateBananaBalance();
+        
+        await saveProgressAfterAction(bananas);
+    }, 3000);
+};
 
-    } else if (current.next && rand > 92) { 
-        // 3. LA BOX SUPÉRIEURE (8% de chance si ce n'est pas une légendaire)
-        reward = { type: 'box', value: current.next, msg: `📦 CHANCEUX ! La box contenait une Lootbox ${current.next.toUpperCase()} !` };
+// --- 3. EXPOSITION GLOBALE ---
+window.playWheel = playWheel;
 
-    } else {
-        // 4. LOT DE CONSOLATION (Boosts ou petit montant)
-        reward = { type: 'bananas', value: Math.floor(current.val * 0.3), msg: `🍌 Pas de chance... tu récupères ${Math.floor(current.val * 0.3)} bananes.` };
-    }
-
-    return applyReward(reward);
-}
-// --- 6. EXPOSITION GLOBALE ---
 window.buySpecialUpgrade = async (type, id) => {
     let bananas = updateBananaBalance();
     let upgrade;
@@ -254,30 +257,16 @@ window.buySpecialUpgrade = async (type, id) => {
         
         await saveProgressAfterAction(bananas);
         alert("✅ Amélioration achetée !");
-        renderUpgrades();
+        // Note: Assure-toi que renderUpgrades() est défini ou retire cette ligne
+        if (typeof renderUpgrades === 'function') renderUpgrades();
         updateBananaBalance();
     } else {
         alert("❌ Pas assez de bananes !");
     }
-
-    // Dans ta fonction applyReward(reward) de shop.js
-    if (reward.type === 'box') {
-    // Utilise la même logique d'ajout que dans l'inventaire
-    let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
-    const boxId = reward.id; // ex: 'box_epic'
-    
-    if (inventory[boxId]) {
-        inventory[boxId].quantity += 1;
-    } else {
-        inventory[boxId] = { id: boxId, type: 'box', rarity: reward.rarity, quantity: 1 };
-    }
-    
-    localStorage.setItem('banane_inventory', JSON.stringify(inventory));
-    return { success: true, message: `Félicitations ! Tu as gagné un ${reward.name} !` };
-}
 };
 
-window.playWheel = playWheel;
+// Initialisation au chargement
+updateBananaBalance();
 
 // --- LANCEMENT ---
 function initShop() {

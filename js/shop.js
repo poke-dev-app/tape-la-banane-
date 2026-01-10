@@ -126,7 +126,6 @@ async function handleBuyItem(item) {
 }
 
 // --- 5. LOGIQUE DE LA ROUE ---
-// --- LOGIQUE DE LA ROUE (FONCTION COMPLÈTE) ---
 window.playWheel = async (count = 1) => {
     if (isSpinning) return;
 
@@ -142,99 +141,69 @@ window.playWheel = async (count = 1) => {
     const visualWheel = document.getElementById('visualWheel');
     if (visualWheel) visualWheel.classList.add('is-spinning');
 
-    // Calcul de la rotation : 3 tours complets + angle aléatoire
+    // Animation
     const extraDegree = Math.floor(Math.random() * 360);
-    currentRotation += (360 * 3) + extraDegree;
-    
-    if (visualWheel) {
-        visualWheel.style.transform = `rotate(${currentRotation}deg)`;
-    }
+    currentRotation += (360 * 5) + extraDegree;
+    if (visualWheel) visualWheel.style.transform = `rotate(${currentRotation}deg)`;
 
-    // Attendre la fin de l'animation (3 secondes)
     setTimeout(async () => {
-        // 1. Déduction du prix
-        bananas -= cost;
-        localStorage.setItem('banane_bananas', bananas);
+        bananas -= cost; // On paye le lancer
         
-        // 2. Détermination de la récompense
-         const rand = Math.random() * 100;
+        const rand = Math.random() * 100;
+        let reward = {};
 
-    let gain = 0;
+        // --- TES PROBABILITÉS ---
+        if (rand < 45) { 
+            let gain;
+            if (rand < 8) gain = 100;
+            else if (rand < 15) gain = 200;
+            else if (rand < 23) gain = 500;
+            else if (rand < 29) gain = 700;
+            else if (rand < 35) gain = 1000;
+            else if (rand < 40) gain = 1300;
+            else if (rand < 43) gain = 1500;
+            else gain = 2000;
+            
+            reward = { type: 'money', val: gain, name: gain + " 🍌" };
+        } 
+        else if (rand < 57) reward = { type: 'shield', id: 'shield_wood', name: "Bouclier Bois" };
+        else if (rand < 67) reward = { type: 'shield', id: 'shield_iron', name: "Bouclier Fer" };
+        else if (rand < 75) reward = { type: 'shield', id: 'shield_gold', name: "Bouclier Or" };
+        else if (rand < 90) reward = { type: 'boost', id: 'boost_x2_money_3h', name: "Boost x2 (3h)" };
+        else if (rand < 96) reward = { type: 'box', id: 'box_common', rarity: 'common', name: "Lootbox Commune" };
+        else if (rand < 99) reward = { type: 'box', id: 'box_rare', rarity: 'rare', name: "Lootbox Rare" };
+        else reward = { type: 'box', id: 'box_epic', rarity: 'epic', name: "Lootbox Épique" };
 
-    let title = "";
-
-
-
-    // Probabilités définies selon game-data.js
-
-    if (rand < 45) { // Gains de bananes
-
-        if (rand < 8) gain = 100;
-
-        else if (rand < 15) gain = 200;
-
-        else if (rand < 23) gain = 500;
-
-        else if (rand < 29) gain = 700;
-
-        else if (rand < 35) gain = 1000;
-
-        else if (rand < 40) gain = 1300;
-
-        else if (rand < 43) gain = 1500;
-
-        else gain = 2000;
-
-        title = `+${gain} 🍌`;
-
-    } 
-
-    else if (rand < 57) { title = "Bouclier Bois"; addBoostToWheel('shield_wood', 'shield'); }
-
-    else if (rand < 67) { title = "Bouclier Fer"; addBoostToWheel('shield_iron', 'shield'); }
-
-    else if (rand < 75) { title = "Bouclier Or"; addBoostToWheel('shield_gold', 'shield'); }
-
-    else if (rand < 90) { title = "Boost x2"; addBoostToWheel('boost_x2_money_3h', 'boost'); }
-
-    else if (rand < 96) { title = "Lootbox Commune"; ('loot-box Commun','box'); }
-
-    else if (rand < 99) { title = "Lootbox Rare"; ('loot-box Rare','box'); }
-
-    else { title = "Lootbox Épique"; ('loot-box Épique','box'); }
-
-
-
-    return { bananas: gain, title };
-
-
-
-        // 3. Application de la récompense
+        // --- SYSTÈME D'AJOUT ---
         let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
-        let alertMsg = "";
 
         if (reward.type === 'money') {
             bananas += reward.val;
-            localStorage.setItem('banane_bananas', bananas);
-            alertMsg = `💰 Gagné : ${reward.name} !`;
-        } else if (reward.type === 'box') {
+            alert(`💰 Gain : +${reward.val} Bananes !`);
+        } else {
+            // On ajoute l'objet (Box, Shield ou Boost)
             if (inventory[reward.id]) {
                 inventory[reward.id].quantity += 1;
             } else {
-                inventory[reward.id] = { id: reward.id, type: 'box', rarity: reward.rarity, quantity: 1 };
+                inventory[reward.id] = { 
+                    id: reward.id, 
+                    type: reward.type, 
+                    rarity: reward.rarity || 'common', 
+                    quantity: 1,
+                    name: reward.name 
+                };
             }
             localStorage.setItem('banane_inventory', JSON.stringify(inventory));
-            alertMsg = `🎁 Gagné : un ${reward.name} !`;
+            alert(`🎁 Gagné : ${reward.name} ! (Ajouté à l'inventaire)`);
         }
 
-        alert(alertMsg);
-
-// 4. Libération de la roue
+        // Sauvegarde et UI
+        localStorage.setItem('banane_bananas', bananas);
         isSpinning = false;
         if (visualWheel) visualWheel.classList.remove('is-spinning');
         updateBananaBalance();
-        
         await saveProgressAfterAction(bananas);
+
     }, 3000);
 };
 

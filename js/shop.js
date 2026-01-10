@@ -259,6 +259,22 @@ window.buySpecialUpgrade = async (type, id) => {
     } else {
         alert("❌ Pas assez de bananes !");
     }
+
+    // Dans ta fonction applyReward(reward) de shop.js
+    if (reward.type === 'box') {
+    // Utilise la même logique d'ajout que dans l'inventaire
+    let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
+    const boxId = reward.id; // ex: 'box_epic'
+    
+    if (inventory[boxId]) {
+        inventory[boxId].quantity += 1;
+    } else {
+        inventory[boxId] = { id: boxId, type: 'box', rarity: reward.rarity, quantity: 1 };
+    }
+    
+    localStorage.setItem('banane_inventory', JSON.stringify(inventory));
+    return { success: true, message: `Félicitations ! Tu as gagné un ${reward.name} !` };
+}
 };
 
 window.playWheel = playWheel;

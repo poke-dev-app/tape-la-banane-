@@ -1,6 +1,6 @@
 // Correction de l'importation en haut de inventory.js
 import { db, doc, setDoc, initializePlayerId, saveProgressAfterAction } from "./firebase-init.js";
-import { ALL_SKINS, ALL_BOOSTS } from "./game-data.js";
+import { ALL_SKINS, ALL_BOOSTS, LOOT_BOX_CONFIG } from "./game-data.js";
 
 const INVENTORY_LIST = document.getElementById('inventoryList');
 
@@ -137,6 +137,67 @@ function consumeItem(id) {
         localStorage.setItem('banane_inventory', JSON.stringify(inventory));
         saveProgressAfterAction(localStorage.getItem('banane_bananas') || 0);
     }
+}
+
+
+
+// Fonction principale pour ouvrir une box
+window.openBox = async (boxRarity) => {
+    const config = LOOT_BOX_CONFIG[boxRarity];
+    const boxId = `box_${boxRarity}`;
+
+    // 1. Logique de LEVEL UP
+    if (config.upgradeChance > 0 && Math.random() * 100 <= config.upgradeChance) {
+        alert(`⚡ INCROYABLE ! Ton ${config.name} s'est transformé en ${LOOT_BOX_CONFIG[config.nextTier].name} !`);
+        // On consomme la petite box et on donne la grande à la place
+        consumeItem(boxId);
+        addItemToInventory(`box_${config.nextTier}`, 'box');
+        renderInventory();
+        return; 
+    }
+
+    let message = `📦 Ouverture : ${config.name.toUpperCase()}\n\n`;
+
+    // 2. Gain d'ARGENT
+    const moneyWon = Math.floor(Math.random() * (config.moneyRange[1] - config.moneyRange[0] + 1)) + config.moneyRange[0];
+    let currentBananas = Number(localStorage.getItem('banane_bananas') || 0);
+    localStorage.setItem('banane_bananas', currentBananas + moneyWon);
+    message += `💰 +${moneyWon} Bananes\n`;
+
+    // 3. Gain de BOOST
+    if (Math.random() * 100 <= config.boostChance) {
+        const randomBoost = ALL_BOOSTS[Math.floor(Math.random() * ALL_BOOSTS.length)];
+        addItemToInventory(randomBoost.id, 'boost');
+        message += `🚀 +1 ${randomBoost.name}\n`;
+    }
+
+    // 4. Gain de SKIN
+    if (Math.random() * 100 <= config.skinChance) {
+        const possibleSkins = ALL_SKINS.filter(s => s.rarity === boxRarity);
+        if (possibleSkins.length > 0) {
+            const skinWon = possibleSkins[Math.floor(Math.random() * possibleSkins.length)];
+            addItemToInventory(skinWon.id, 'skin');
+            message += `✨ SKIN : ${skinWon.name}\n`;
+        }
+    }
+
+    alert(message);
+    consumeItem(boxId);
+    await saveProgressAfterAction(localStorage.getItem('banane_bananas'));
+    renderInventory();
+};
+
+// Fonction utilitaire pour ajouter n'importe quel item
+function addItemToInventory(id, type) {
+    let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
+    if (inventory[id]) {
+        inventory[id].quantity = (inventory[id].quantity || 1) + 1;
+    } else {
+        inventory[id] = { id: id, type: type, quantity: 1 };
+        // Pour les box, on stocke aussi la rareté pour l'affichage
+        if (type === 'box') inventory[id].rarity = id.split('_')[1];
+    }
+    localStorage.setItem('banane_inventory', JSON.stringify(inventory));
 }
 
 document.addEventListener('DOMContentLoaded', renderInventory);

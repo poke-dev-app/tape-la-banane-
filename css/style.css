@@ -545,3 +545,13 @@ body {
     justify-content: center;
     margin-top: 10px;
 }
+
+.inventory-item.type-box {
+    border: 2px dashed #FFD54F;
+    background: #FFF9C4;
+}
+
+.inventory-item.type-box .btn {
+    background: #FF9800; /* Bouton orange pour "Ouvrir" */
+    color: white;
+}

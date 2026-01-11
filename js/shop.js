@@ -141,74 +141,77 @@ window.playWheel = async (count = 1) => {
     const visualWheel = document.getElementById('visualWheel');
     if (visualWheel) visualWheel.classList.add('is-spinning');
 
-    // Animation de rotation
+    // UNE SEULE ANIMATION (même pour x100)
     const extraDegree = Math.floor(Math.random() * 360);
     currentRotation += (360 * 5) + extraDegree;
     if (visualWheel) visualWheel.style.transform = `rotate(${currentRotation}deg)`;
 
     setTimeout(async () => {
-        // 1. Déduire le coût
-        bananas -= cost;
+        bananas -= cost; // On paye le total
         
-        const rand = Math.random() * 100;
-        let reward = null;
-
-        // 2. TES PROBABILITÉS (Intégrées correctement)
-        if (rand < 45) { 
-            let gain;
-            if (rand < 8) gain = 100;
-            else if (rand < 15) gain = 200;
-            else if (rand < 23) gain = 500;
-            else if (rand < 29) gain = 700;
-            else if (rand < 35) gain = 1000;
-            else if (rand < 40) gain = 1300;
-            else if (rand < 43) gain = 1500;
-            else gain = 2000;
-            reward = { type: 'money', val: gain, name: gain + " 🍌" };
-        } 
-        else if (rand < 57) reward = { type: 'shield', id: 'shield_wood', name: "Bouclier Bois" };
-        else if (rand < 67) reward = { type: 'shield', id: 'shield_iron', name: "Bouclier Fer" };
-        else if (rand < 75) reward = { type: 'shield', id: 'shield_gold', name: "Bouclier Or" };
-        else if (rand < 90) reward = { type: 'boost', id: 'boost_x2_money_3h', name: "Boost x2" };
-        else if (rand < 96) reward = { type: 'box', id: 'box_common', rarity: 'common', name: "Lootbox Commune" };
-        else if (rand < 99) reward = { type: 'box', id: 'box_rare', rarity: 'rare', name: "Lootbox Rare" };
-        else reward = { type: 'box', id: 'box_epic', rarity: 'epic', name: "Lootbox Épique" };
-
-        // 3. AJOUT À L'INVENTAIRE (Remplace addBoostToWheel)
         let inventory = JSON.parse(localStorage.getItem('banane_inventory') || "{}");
+        let allRewards = []; 
 
-        if (reward.type === 'money') {
-            bananas += reward.val;
-            alert(`💰 Gain : +${reward.name} !`);
-        } else {
-            // Logique générique pour Box, Shield et Boost
-            if (inventory[reward.id]) {
-                inventory[reward.id].quantity += 1;
-            } else {
-                inventory[reward.id] = { 
-                    id: reward.id, 
-                    type: reward.type, 
-                    rarity: reward.rarity || 'common', 
-                    quantity: 1,
-                    name: reward.name 
-                };
+        // LA BOUCLE DE CALCUL (Ultra rapide, se fait en arrière-plan)
+        for (let i = 0; i < count; i++) {
+            const rand = Math.random() * 100;
+            
+            if (rand < 45) { // Gains de bananes
+                let gain;
+                if (rand < 8) gain = 100;
+                else if (rand < 15) gain = 200;
+                else if (rand < 23) gain = 500;
+                else if (rand < 29) gain = 700;
+                else if (rand < 35) gain = 1000;
+                else if (rand < 40) gain = 1300;
+                else if (rand < 43) gain = 1500;
+                else gain = 2000;
+                
+                bananas += gain;
+                allRewards.push(`${gain} 🍌`);
+            } 
+            else { // Gains d'objets
+                let item = {};
+                if (rand < 57) item = { id: 'shield_wood', type: 'shield', name: "Bouclier Bois" };
+                else if (rand < 67) item = { id: 'shield_iron', type: 'shield', name: "Bouclier Fer" };
+                else if (rand < 75) item = { id: 'shield_gold', type: 'shield', name: "Bouclier Or" };
+                else if (rand < 90) item = { id: 'boost_x2_money_3h', type: 'boost', name: "Boost x2" };
+                else if (rand < 96) item = { id: 'box_common', type: 'box', rarity: 'common', name: "Lootbox Commune" };
+                else if (rand < 99) item = { id: 'box_rare', type: 'box', rarity: 'rare', name: "Lootbox Rare" };
+                else item = { id: 'box_epic', type: 'box', rarity: 'epic', name: "Lootbox Épique" };
+
+                if (inventory[item.id]) {
+                    inventory[item.id].quantity += 1;
+                } else {
+                    inventory[item.id] = { ...item, quantity: 1 };
+                }
+                allRewards.push(item.name);
             }
-            localStorage.setItem('banane_inventory', JSON.stringify(inventory));
-            alert(`🎁 Gagné : ${reward.name} ! (Check ton sac à dos)`);
         }
 
-        // 4. Sauvegarde et Mise à jour UI
+        // --- SAUVEGARDE UNIQUE ---
+        localStorage.setItem('banane_inventory', JSON.stringify(inventory));
         localStorage.setItem('banane_bananas', bananas);
+        
         isSpinning = false;
         if (visualWheel) visualWheel.classList.remove('is-spinning');
         updateBananaBalance();
-        
-        // Sauvegarde Cloud Firebase
         await saveProgressAfterAction(bananas);
 
-    }, 3000);
-};
+        // --- AFFICHAGE DU RÉSUMÉ ---
+        const summary = allRewards.reduce((acc, curr) => {
+            acc[curr] = (acc[curr] || 0) + 1;
+            return acc;
+        }, {});
 
+        let msg = count > 1 ? `🎰 RÉSULTATS (x${count}) :\n\n` : `🎁 GAIN :\n`;
+        for (const [name, qty] of Object.entries(summary)) {
+            msg += `• ${name} x${qty}\n`;
+        }
+        alert(msg);
+
+    }, 3000); // Temps de l'animation unique
+};
 // --- 3. EXPOSITION GLOBALE ---
 window.playWheel = playWheel;
 
@@ -249,4 +252,5 @@ function initShop() {
 }
 
 document.addEventListener('DOMContentLoaded', initShop);
+
 

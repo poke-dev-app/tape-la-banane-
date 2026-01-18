@@ -212,6 +212,7 @@ window.playWheel = async (count = 1) => {
 
     }, 3000); // Temps de l'animation unique
 };
+
 // --- 3. EXPOSITION GLOBALE ---
 window.playWheel = playWheel;
 
@@ -252,5 +253,3 @@ function initShop() {
 }
 
 document.addEventListener('DOMContentLoaded', initShop);
-
-

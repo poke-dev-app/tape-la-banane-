@@ -22,7 +22,7 @@ export const ALL_SKINS = [
         cost: 2500,
         type: 'skin',
         rarity: 'common',
-        description: 'Rayée, pour plus de style.'
+        description: 'Rayée pour plus de style.'
     },
     {
         id: 'blue_banana',
@@ -31,7 +31,7 @@ export const ALL_SKINS = [
         cost: 2000,
         type: 'skin',
         rarity: 'common',
-        description: 'Une banane exotique, couleur azur.'
+        description: 'Une banane exotique couleur azur.'
     },
     {
         id: 'red_banana',
@@ -40,7 +40,7 @@ export const ALL_SKINS = [
         cost: 2000,
         type: 'skin',
         rarity: 'common',
-        description: 'Attention, très mûre !'
+        description: 'Attention très mûre !'
     },
     {
         id: 'pixel_banana',
@@ -206,7 +206,8 @@ export const CRIT_MULTI_UPGRADES = [
 // --- CONFIGURATION DES LOOT BOXES ---
 export const LOOT_BOX_CONFIG = {
     common: {
-        name: "loot-box Commun",
+        name: "loot-box commun",
+        image:'img/loot-box commun',
         value: 5000,
         upgradeChance: 15, // 15% de chance de devenir Rare
         nextTier: 'rare',
@@ -215,7 +216,8 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 10
     },
     rare: {
-        name: "loot-box Rare",
+        name: "loot-box rare",
+        image:'img/loot-box rare',
         value: 15000,
         upgradeChance: 10, // 10% de chance de devenir Épique
         nextTier: 'epic',
@@ -224,7 +226,8 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 20
     },
     epic: {
-        name: "loot-box Épique",
+        name: "loot-box épique",
+        image:'img/loot-box épique',
         value: 40000,
         upgradeChance: 5, // 5% de chance de devenir Légendaire
         nextTier: 'legendary',
@@ -233,7 +236,8 @@ export const LOOT_BOX_CONFIG = {
         skinChance: 35
     },
     legendary: {
-        name: "loot-box Légendaire",
+        name: "loot-box légendaire",
+        image:'img/loot-box légendaire',
         value: 150000,
         upgradeChance: 0,
         moneyRange: [50000, 100000],

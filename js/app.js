@@ -1,5 +1,16 @@
 import { db, doc, setDoc, initializePlayerId } from "./firebase-init.js";
 import { ALL_SKINS, ALL_BOOSTS } from "./game-data.js";
+import { AdMob } from '@capacitor-community/admob';
+
+async function initializeAdMob() {
+  await AdMob.initialize({
+    testingDevices: ['VOTRE_ID_APPAREIL_TEST'],
+    initializeForTesting: true,
+  });
+}
+
+// Appelle cette fonction au chargement du jeu
+initializeAdMob();
 
 // --- CONSTANTES ET PARAMÈTRES DU JEU ---
 const START_TAP_TIME_MS = 1200;  
@@ -129,6 +140,21 @@ async function endGame() {
         clearTimeout(bananaTimeout);
         bananaTimeout = null;
     }
+
+    // --- AJOUT POUR LA PUB INTERSTITIELLE ---
+    console.log("Appel Pub Interstitielle ID: ca-app-pub-9867983302890361/2186537333");
+    // Ici, appelle la fonction de ton plugin Android Studio pour afficher la pub
+
+    if (currentScore > bestScore) {
+        bestScore = currentScore;
+        localStorage.setItem("banane_best_score", bestScore);
+        saveProgressAfterAction(totalBananasCurrency);
+    }
+    
+    finalScoreDisplay.textContent = currentScore;
+    hideElement(gameArea);
+    showElement(gameOverScreen);
+    console.log("Écran Game Over affiché.");
 
     // 1. Mise à jour du score final sur l'écran de fin
     if (finalScoreDisplay) {

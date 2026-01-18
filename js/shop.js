@@ -244,12 +244,27 @@ window.buySpecialUpgrade = async (type, id) => {
 updateBananaBalance();
 
 // --- LANCEMENT ---
-function initShop() {
+export function initShop() {
     initializePlayerId();
     updateBananaBalance();
-    renderItemGrid(ALL_SKINS.filter(s => s.cost > 0), SKINS_GRID);
-    renderItemGrid(ALL_BOOSTS, BOOSTS_GRID);
     renderUpgrades();
-}
+    renderSkins();
+    renderBoosts();
 
-document.addEventListener('DOMContentLoaded', initShop);
+    // --- AJOUT POUR LA PUB REWARD ---
+    const rewardBtn = document.getElementById('rewardAdBtn');
+    if (rewardBtn) {
+        rewardBtn.addEventListener('click', () => {
+            console.log("Demande de pub Reward...");
+            // Remplace par l'appel de ton plugin (ex: AdMob.showRewardAd)
+            // Une fois la pub finie, on donne la récompense :
+            let bananas = Number(localStorage.getItem('banane_bananas') || 0);
+            bananas += 100;
+            localStorage.setItem('banane_bananas', bananas);
+            
+            updateBananaBalance();
+            saveProgressAfterAction(bananas);
+            alert("Merci ! +100 bananes ajoutées 🍌");
+        });
+    }
+}

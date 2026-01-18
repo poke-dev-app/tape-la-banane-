@@ -207,9 +207,8 @@ export const CRIT_MULTI_UPGRADES = [
 export const LOOT_BOX_CONFIG = {
     common: {
         name: "loot-box commun",
-        image:'img/loot-box commun',
         value: 5000,
-        upgradeChance: 15, // 15% de chance de devenir Rare
+        upgradeChance: 10, // 10% de chance de devenir Rare
         nextTier: 'rare',
         moneyRange: [1000, 3000],
         boostChance: 30,
@@ -217,7 +216,6 @@ export const LOOT_BOX_CONFIG = {
     },
     rare: {
         name: "loot-box rare",
-        image:'img/loot-box rare',
         value: 15000,
         upgradeChance: 10, // 10% de chance de devenir Épique
         nextTier: 'epic',
@@ -227,9 +225,8 @@ export const LOOT_BOX_CONFIG = {
     },
     epic: {
         name: "loot-box épique",
-        image:'img/loot-box épique',
         value: 40000,
-        upgradeChance: 5, // 5% de chance de devenir Légendaire
+        upgradeChance: 10, // 10% de chance de devenir Légendaire
         nextTier: 'legendary',
         moneyRange: [12000, 25000],
         boostChance: 70,
@@ -237,7 +234,6 @@ export const LOOT_BOX_CONFIG = {
     },
     legendary: {
         name: "loot-box légendaire",
-        image:'img/loot-box légendaire',
         value: 150000,
         upgradeChance: 0,
         moneyRange: [50000, 100000],
